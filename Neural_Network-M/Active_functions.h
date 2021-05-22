@@ -3,8 +3,12 @@
 
 class Active_functions
 {
+private:
+	std::function<void (float*, float*, unsigned size)> functions[2];
+	unsigned size;
+	float* result[2];
+	float* deriative;
 public:
-	std::vector<std::function<float*(float*, unsigned size)>> active_functions;	//vektor przechowujacy funkcje aktywacji
 	enum class Active_fun { // klasa pomocnicza sluzaca "bezpiecznemu" wybieraniu funkcji aktywacji
 		BINARY_STEP,
 		SIGMOID,
@@ -14,18 +18,22 @@ public:
 		SOFTPLUS,
 		SOFTMAX
 	};
+	Active_functions(unsigned inSize, float* resultIN, float* resultOUT, float* deriativeOUT, Active_fun _function);
+	void feed_forward();
+	void deriative_out();
+private:
 	void set_active_fun(Active_fun fun);
-	float* sigmoid(float* x, unsigned size);
-	float* tanh(float* x, unsigned size);
-	float* relu(float* x, unsigned size);
-	float* arctan(float* x, unsigned size);
-	float* softplus(float* x, unsigned size);
-	float* softmax(float* x, unsigned size);
-	float* arctan_der(float* x, unsigned size);
-	float* softmax_der(float* x, unsigned size);
-	float* relu_der(float* x, unsigned size);
-	float* sigmoid_der(float* x, unsigned size);
-	float* softplus_der(float* x, unsigned size);
-	float* tanh_der(float* x, unsigned size);
+	void sigmoid(float* in, float* out, unsigned size);
+	void tanh(float* in, float* out, unsigned size);
+	void relu(float* in, float* out, unsigned size);
+	void arctan(float* in, float* out, unsigned size);
+	void softplus(float* in, float* out, unsigned size);
+	void softmax(float* in, float* out, unsigned size);
+	void arctan_der(float* in, float* out, unsigned size);
+	void softmax_der(float* in, float* out, unsigned size);
+	void relu_der(float* in, float* out, unsigned size);
+	void sigmoid_der(float* in, float* out, unsigned size);
+	void softplus_der(float* in, float* out, unsigned size);
+	void tanh_der(float* in, float* out, unsigned size);
 };
 

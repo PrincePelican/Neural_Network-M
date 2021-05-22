@@ -9,7 +9,7 @@ void Network::add3Dconv(unsigned kernelNumber, unsigned kernelSize, bool flat) /
 		flatten = new float[kernelNumber * outSize * outSize];
 	}
 	addVectors(outSize, kernelNumber);
-	Layers.push_back(new conv3Din(kernelSize, kernelNumber, matrixSize, &result_3D[result_3D.size()-2], &result_3D.back(), &error_3D.back(), &error_3D[error_3D.size() - 2], flat, flatten));
+	Layers.push_back(new conv3Din(kernelSize, kernelNumber, matrixSize, result_3D[result_3D.size()-2], result_3D.back(), error_3D.back(), error_3D[error_3D.size() - 2], flat, flatten));
 	Sizes.push_back(outSize);
 }
 
@@ -17,7 +17,7 @@ void Network::add2Dconv(unsigned kernelNumber, unsigned kernelSize, unsigned inS
 {
 	unsigned outSize = inSize - (kernelSize + 1); // oblicza rozmiar wyjœæia konwolucji
 	addVectors(outSize, kernelNumber);
-	Layers.push_back(new conv2Din(kernelSize, kernelNumber, inSize, nullptr, &result_3D.back(), &error_3D.back()));
+	Layers.push_back(new conv2Din(kernelSize, kernelNumber, inSize, inData, result_3D[0], error_3D[0]));
 	Sizes.push_back(outSize);
 }
 
@@ -25,17 +25,18 @@ void Network::addPooling(unsigned poolingSize, bool flat)
 {
 	unsigned inSize = Sizes.back();
 	unsigned outSize = inSize / poolingSize;
-	addVectors(outSize, result_3D.back().size());
-	Layers.push_back(new pooling(poolingSize, inSize, &result_3D[result_3D.size() - 2], &error_3D.back(), &result_3D.back(), &error_3D[error_3D.size() - 2], flat, flatten));
+	addVectors(outSize, result_3D.back()->size());
+	Layers.push_back(new pooling(poolingSize, inSize, result_3D[result_3D.size() - 2], error_3D.back(), result_3D.back(), error_3D[error_3D.size() - 2], flat, flatten));
 	Sizes.push_back(outSize);
 }
 
-void Network::addFullyCon(unsigned neuronNumber, unsigned inNumber)
+void Network::addFullyCon(Active_functions::Active_fun function, unsigned neuronNumber, unsigned inNumber)
 {
 	result_fullyCon.push_back(new float[neuronNumber]{0});//tworzy potrzebne macierze do przekazania wskaŸników
 	result_funfullyCon.push_back(new float[neuronNumber] {0});
 	result_deriative.push_back(new float[neuronNumber]{0});
 	dercost_fullyCon.push_back(new float[neuronNumber]{0});
+	Active_functions* functions = new Active_functions(neuronNumber, result_fullyCon.back(), result_fullyCon.back(), result_deriative.back(), function);
 	bool error3D = false;
 	if (inNumber == 0) {
 		inNumber = Sizes.back();
@@ -43,17 +44,28 @@ void Network::addFullyCon(unsigned neuronNumber, unsigned inNumber)
 			error3D = true;
 		}
 	}
-	Layers.push_back(new fully_connected(neuronNumber, inNumber, result_fullyCon.back(), flatten, result_deriative.back(), dercost_fullyCon.back(), error3D, &error_3D.back()));
+	Layers.push_back(new fully_connected(neuronNumber, inNumber, result_fullyCon.back(), flatten, result_deriative.back(), dercost_fullyCon.back(), error3D, error_3D.back(), functions));
 	Sizes.push_back(neuronNumber);
+}
+
+void Network::changein(float** in)
+{
+	inData = in;
+}
+
+void Network::feed_forward()
+{
+	for (unsigned i{ 0 }; i < Layers.size(); ++i)
+		Layers[i]->feed_forward();
 }
 
 void Network::addVectors(unsigned matrixSize, unsigned vectorSize)
 {
-	std::vector<float**> result;
-	std::vector<float**> error;
+	std::vector<float**>* result = new std::vector<float**>;
+	std::vector<float**>* error = new std::vector<float**>;
 	for (unsigned i{ 0 }; i < vectorSize; ++i) { // tworzy potrzebne macierze
-		result.push_back(matrix_operations::createMatrix(matrixSize, matrixSize));
-		error.push_back(matrix_operations::createMatrix(matrixSize, matrixSize));
+		result->push_back(matrix_operations::createMatrix(matrixSize, matrixSize));
+		error->push_back(matrix_operations::createMatrix(matrixSize, matrixSize));
 	}
 	result_3D.push_back(result);
 	error_3D.push_back(error);

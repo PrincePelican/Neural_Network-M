@@ -1,7 +1,7 @@
 #include "fully_connected.h"
 #include "matrix_operations.h"
 
-fully_connected::fully_connected(unsigned _neuronNumber, unsigned _weightsNumber, float*& _out, float* _in, float*& _deriative, float*& _cost, bool _error3D, std::vector<float**>* _error_3D) //przypisuje potrzebne wskaüniki tworzy macierze
+fully_connected::fully_connected(unsigned _neuronNumber, unsigned _weightsNumber, float*& _out, float* _in, float*& _deriative, float*& _cost, bool _error3D, std::vector<float**>* _error_3D, Active_functions* _funkcje) //przypisuje potrzebne wskaüniki tworzy macierze
 {
 	this->neuronNumber = _neuronNumber;
 	this->weightsNumber = _weightsNumber;
@@ -16,6 +16,7 @@ fully_connected::fully_connected(unsigned _neuronNumber, unsigned _weightsNumber
 	this->error3D = _error3D;
 	this->error_3D = _error_3D;
 	this->error3DSize = _weightsNumber;
+	this->funkcje = funkcje;
 
 	weights = matrix_operations::createMatrix(neuronNumber, weightsNumber);
 	batch_mem = matrix_operations::createMatrix(neuronNumber, weightsNumber);
@@ -31,10 +32,12 @@ fully_connected::~fully_connected()
 void fully_connected::feed_forward()//zwraca wynik
 {
 	matrix_operations::dot_product(out, this->weights, in, neuronNumber, weightsNumber);
+	funkcje->feed_forward();
 }
 
 void fully_connected::back_propagation()//
 {
+	funkcje->deriative_out();
 	float* result_mul = new float[neuronNumber] {0};
 	float** weights_correction = matrix_operations::createMatrix(neuronNumber, weightsNumber);
 	matrix_operations::multiply(result_mul, cost, deriative, neuronNumber);
