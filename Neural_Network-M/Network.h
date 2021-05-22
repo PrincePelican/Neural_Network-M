@@ -10,25 +10,24 @@
 class Network
 {
 private:
-	std::vector<Layer*> Layers;
+	std::vector<Layer*> Layers;//wszystkie warstwy
+	std::vector<unsigned> Sizes;//rozmiary poszczególnych warstw
+	std::vector<std::function<float*(float*)>> active_functions;	//vektor przechowujacy funkcje aktywacji
 	//fully connected
 	std::vector<float*> result_fullyCon;
 	std::vector<float*> result_funfullyCon;
 	std::vector<float*> result_deriative;
 	std::vector<float*> dercost_fullyCon;
-	//conv 2D
-	std::vector<float**> result_conv2D;
-	std::vector<float**> error_conv2D;
+	float* flatten;
 	//conv 3D
-	std::vector<std::vector<float**>> result_conv3D;
-	std::vector<std::vector<float**>> error_conv3D;
-	//pooling
-	std::vector<std::vector<float**>> result_pooling;
+	std::vector<std::vector<float**>> result_3D;
+	std::vector<std::vector<float**>> error_3D;
 public:
-	void add3Dconv(unsigned kernelNumber, unsigned kernelSize);
-	void add2Dconv(unsigned kernelNumber, unsigned kernelSize);
-	void addPooling(unsigned poolingSize);
-	void addFullyCon(unsigned neuronNumber, unsigned inNumber);
+	void add3Dconv(unsigned kernelNumber, unsigned kernelSize, bool flat = false);
+	void add2Dconv(unsigned kernelNumber, unsigned kernelSize, unsigned inSize);
+	void addPooling(unsigned poolingSize, bool flat = false);
+	void addFullyCon(unsigned neuronNumber, unsigned inNumber = 0);
+	void addVectors(unsigned matrixSize, unsigned vectorSize);
 
 	
 };
