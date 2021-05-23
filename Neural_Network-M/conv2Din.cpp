@@ -2,7 +2,7 @@
 #include "matrix_operations.h"
 
 
-conv2Din::conv2Din(unsigned _kernelSize, unsigned _kernelNumber, unsigned _matrixSize, float** _matrix_in, std::vector<float**>* _out, std::vector<float**>* _error)
+conv2Din::conv2Din(unsigned _kernelSize, unsigned _kernelNumber, unsigned _matrixSize, float*** _matrix_in, std::vector<float**>* _out, std::vector<float**>* _error)
 {
 	this->kernelSize = _kernelSize;
 	this->kernelNumber = _kernelNumber;
@@ -32,7 +32,7 @@ conv2Din::~conv2Din()
 void conv2Din::feed_forward()
 {
 	for (unsigned i{ 0 }; i < kernelNumber; ++i) {
-		matrix_operations::Conv(matrix_in, kernels[i], (*out)[i], matrixSize, kernelSize);
+		matrix_operations::Conv(*matrix_in, kernels[i], (*out)[i], matrixSize, kernelSize);
 	}
 }
 
@@ -44,7 +44,7 @@ void conv2Din::back_propagation()
 	matrix_operations::add(error_sum, (*error), errorSize);
 	
 	for (unsigned i{ 0 }; i < kernelNumber; ++i) {			//przyjrzeæ siê ten sam in za ka¿dym razem
-		matrix_operations::Conv(matrix_in, error_sum, conv_product, matrixSize, errorSize);
+		matrix_operations::Conv(*matrix_in, error_sum, conv_product, matrixSize, errorSize);
 		matrix_operations::subtract(batch[i], conv_product, kernelSize, kernelSize);
 	}
 
@@ -60,5 +60,26 @@ void conv2Din::weights_update()
 		matrix_operations::multiply(batch[i], kernelSize, kernelSize, 0);
 		matrix_operations::add(kernels[i], batch[i], kernelSize, kernelSize);
 		matrix_operations::ResetMem(batch[i], kernelSize, kernelSize);
+	}
+}
+
+void conv2Din::initweights(Initializator::Initializators method)
+{
+	float initializer = 1;
+	if (Initializator::Initializators::He)
+	{
+		initializer = Initializator::He_ini(kernelSize*kernelSize);
+	}
+	else if (Initializator::Initializators::Xavier)
+	{
+		//initializer = Initializator::Xavier_ini(kernelSize*kernelSize);
+	}
+	srand(static_cast <unsigned> (time(0)));
+	for (unsigned x{ 0 }; x < kernelNumber; ++x) {
+		for (unsigned i{ 0 }; i < kernelSize; ++i) {
+			for (unsigned j{ 0 }; j < kernelSize; ++j) {
+				kernels[x][i][j] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * initializer;
+			}
+		}
 	}
 }

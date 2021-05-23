@@ -144,6 +144,7 @@
     <ClInclude Include="conv2Din.h" />
     <ClInclude Include="conv3Din.h" />
     <ClInclude Include="fully_connected.h" />
+    <ClInclude Include="Initializator.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="matrix_operations.h" />
     <ClInclude Include="Network.h" />
@@ -154,6 +155,7 @@
     <ClCompile Include="conv2Din.cpp" />
     <ClCompile Include="conv3Din.cpp" />
     <ClCompile Include="fully_connected.cpp" />
+    <ClCompile Include="Initializator.cpp" />
     <ClCompile Include="Layer.cpp" />
     <ClCompile Include="matrix_operations.cpp" />
     <ClCompile Include="Network.cpp" />

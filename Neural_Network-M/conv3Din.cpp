@@ -102,3 +102,24 @@ void conv3Din::create_errorMatrix()
 	}
 }
 
+void conv3Din::initweights(Initializator::Initializators method)
+{
+	float initializer = 1;
+	if (Initializator::Initializators::He)
+	{
+		initializer = Initializator::He_ini(kernelSize * kernelSize);
+	}
+	else if (Initializator::Initializators::Xavier)
+	{
+		//initializer = Initializator::Xavier_ini(kernelSize*kernelSize);
+	}
+	srand(static_cast <unsigned> (time(0)));
+	for (unsigned x{ 0 }; x < kernelNumber; ++x) {
+		for (unsigned i{ 0 }; i < kernelSize; ++i) {
+			for (unsigned j{ 0 }; j < kernelSize; ++j) {
+				kernels[x][i][j] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * initializer;
+			}
+		}
+	}
+}
+

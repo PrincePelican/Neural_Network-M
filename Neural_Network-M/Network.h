@@ -31,7 +31,9 @@ public:
 	void addPooling(unsigned poolingSize, bool flat = false);
 	void addFullyCon(Active_functions::Active_fun function, unsigned neuronNumber, unsigned inNumber = 0);
 	void changein(float** in);
+	void initializatiion(Initializator::Initializators method);
 	void feed_forward();
+	void back_prop();
 
 	
 };

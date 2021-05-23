@@ -1,7 +1,7 @@
 #include "fully_connected.h"
 #include "matrix_operations.h"
 
-fully_connected::fully_connected(unsigned _neuronNumber, unsigned _weightsNumber, float*& _out, float* _in, float*& _deriative, float*& _cost, bool _error3D, std::vector<float**>* _error_3D, Active_functions* _funkcje) //przypisuje potrzebne wskaüniki tworzy macierze
+fully_connected::fully_connected(unsigned _neuronNumber, unsigned _weightsNumber, float* _out, float* _in, float* _deriative, float* _cost, bool _error3D, std::vector<float**>* _error_3D, Active_functions* _funkcje) //przypisuje potrzebne wskaüniki tworzy macierze
 {
 	this->neuronNumber = _neuronNumber;
 	this->weightsNumber = _weightsNumber;
@@ -9,14 +9,14 @@ fully_connected::fully_connected(unsigned _neuronNumber, unsigned _weightsNumber
 	{
 		this->weightsNumber = _weightsNumber * _weightsNumber * (*_error_3D).size();
 	}
-	this->out = out;
-	this->in = in;
+	this->out = _out;
+	this->in = _in;
 	this->deriative = _deriative;
-	this->cost = _deriative;
+	this->cost = _cost;
 	this->error3D = _error3D;
 	this->error_3D = _error_3D;
 	this->error3DSize = _weightsNumber;
-	this->funkcje = funkcje;
+	this->funkcje = _funkcje;
 
 	weights = matrix_operations::createMatrix(neuronNumber, weightsNumber);
 	batch_mem = matrix_operations::createMatrix(neuronNumber, weightsNumber);
@@ -56,6 +56,25 @@ void fully_connected::weights_update()
 	matrix_operations::multiply(batch_mem, neuronNumber, weightsNumber, 0);
 	matrix_operations::subtract(weights, batch_mem, neuronNumber, weightsNumber);
 	matrix_operations::ResetMem(batch_mem, neuronNumber, weightsNumber);
+}
+
+void fully_connected::initweights(Initializator::Initializators method)
+{
+	float initializer;
+	if (Initializator::Initializators::He)
+	{
+		initializer = Initializator::He_ini(weightsNumber);
+	}
+	else if (Initializator::Initializators::Xavier)
+	{
+		initializer = Initializator::Xavier_ini(weightsNumber, neuronNumber);
+	}
+	srand(static_cast <unsigned> (time(0)));
+	for (unsigned i{ 0 }; i < neuronNumber; ++i) {
+		for (unsigned j{ 0 }; j < weightsNumber; ++j) {
+			weights[i][j] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX) * initializer;
+		}
+	}
 }
 
 

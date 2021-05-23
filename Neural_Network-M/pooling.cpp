@@ -31,6 +31,10 @@ void pooling::back_propagation()
 		}
 	}
 
+void pooling::initweights(Initializator::Initializators method)
+{
+}
+
 
 float pooling::avg_feed_forward(float** out, unsigned y, unsigned x, float divider)
 {

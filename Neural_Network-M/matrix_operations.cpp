@@ -1,7 +1,7 @@
 #include "matrix_operations.h"
 #include <iostream>
 
-void matrix_operations::dot_product(float*& out, float**& matrix_in, float*& vector_in, unsigned matrixSizeX, unsigned matrixSizeY)
+void matrix_operations::dot_product(float*& out, float**& matrix_in, float*& vector_in, unsigned matrixSizeY, unsigned matrixSizeX)
 {
 	for (unsigned i{ 0 }; i < matrixSizeY; ++i) {
 		for (unsigned j{ 0 }; j < matrixSizeX; ++j) {

@@ -23,6 +23,7 @@ public:
 	void feed_forward();
 	void back_propagation();
 	void weights_update();
+	void initweights(Initializator::Initializators method);
 	void create_errorMatrix();
 };
 
