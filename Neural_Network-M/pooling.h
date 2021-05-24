@@ -18,6 +18,8 @@ public:
 	pooling(unsigned _pooling_size, unsigned _matrixSize, std::vector<float**>* _matrix_in, std::vector<float**>* _error_in, std::vector<float**>* _result_pooling, std::vector<float**>* _result_error, bool flat, float* flatten);
 	void feed_forward();
 	void back_propagation();
+	void weights_update();
+	void changeLearnRate(float rate);
 	void initweights(Initializator::Initializators method);
 	float avg_feed_forward(float** out, unsigned y, unsigned x, float divider);
 };

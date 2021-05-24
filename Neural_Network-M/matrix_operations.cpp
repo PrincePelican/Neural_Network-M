@@ -10,6 +10,15 @@ void matrix_operations::dot_product(float*& out, float**& matrix_in, float*& vec
 	}
 }
 
+void matrix_operations::dot_productB(float*& out, float**& matrix_in, float*& vector_in, unsigned matrixSizeY, unsigned matrixSizeX)
+{
+	for (unsigned i{ 0 }; i < matrixSizeY; ++i) {
+		for (unsigned j{ 0 }; j < matrixSizeX; ++j) {
+			out[j] += matrix_in[i][j] * vector_in[i];
+		}
+	}
+}
+
 void matrix_operations::multiply(float*& out, float*& vector1, float*& vector2, unsigned size)
 {
 	for (unsigned i{ 0 }; i < size; ++i) {
@@ -44,6 +53,13 @@ void matrix_operations::subtract(float**& out, float**& matrix_in, unsigned size
 	}
 }
 
+void matrix_operations::subtract(float* out, float* matrix_in, float* subtractor, unsigned size)
+{
+	for (unsigned i{ 0 }; i < size; ++i) {
+		out[i] = matrix_in[i] - subtractor[i];
+	}
+}
+
 void matrix_operations::add(float**& out, std::vector<float**>& matrix_in, unsigned matrixSize)
 {
 	for (unsigned i{ 0 }; i < matrixSize; ++i) {
@@ -71,6 +87,7 @@ void matrix_operations::clearMatrix(float**& matrix, unsigned sizeY, unsigned si
 
 void matrix_operations::showMatrix(float**& matrix, unsigned sizeY, unsigned sizeX)
 {
+	std::cout << std::endl << std::endl;
 	for (unsigned i{ 0 }; i < sizeY; ++i) {
 		for (unsigned j{ 0 }; j < sizeX; ++j) {
 			std::cout << matrix[i][j] << " ";
@@ -79,10 +96,22 @@ void matrix_operations::showMatrix(float**& matrix, unsigned sizeY, unsigned siz
 	}
 }
 
+void matrix_operations::showVector(float*& matrix, unsigned size)
+{
+	std::cout << std::endl << std::endl;
+	for (unsigned i{ 0 }; i < size; ++i)
+		std::cout << matrix[i] << " ";
+}
+
 void matrix_operations::ResetMem(float**& matrix, unsigned sizeY, unsigned sizeX)
 {
 	for (unsigned i{ 0 }; i < sizeY; ++i)
 		memset(matrix[i], 0, sizeX * sizeof(float));
+}
+
+void matrix_operations::ResetMem(float*& matrix, unsigned size)
+{
+	memset(matrix, 0, size * sizeof(float));
 }
 
 void matrix_operations::pooling(float** in, float** out, unsigned matrixSize, unsigned pooling_size)
@@ -206,4 +235,17 @@ void matrix_operations::reverseColumns(float**& matrix, unsigned size)
 	for (int i = 0; i < size; i++)
 		for (int j = i; j < size; j++)
 			std::swap(matrix[i][j], matrix[j][i]);
+}
+
+unsigned matrix_operations::chooseMax(float*& matrix, unsigned size)
+{
+	float max = matrix[0];
+	unsigned n_max = 0;
+	for (int i = 0; i < size; i++) {
+		if (max < matrix[i]) {
+			max = matrix[i];
+			n_max = i;
+		}
+	}
+	return n_max;
 }

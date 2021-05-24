@@ -5,6 +5,7 @@
 class conv2Din: public Layer
 {
 private:
+	float learnRate = 0.01;
 	unsigned kernelSize;
 	unsigned kernelNumber;
 	unsigned errorSize;
@@ -20,6 +21,7 @@ public:
 	void feed_forward();
 	void back_propagation();
 	void weights_update();
+	void changeLearnRate(float rate);
 	void initweights(Initializator::Initializators method);
 };
 

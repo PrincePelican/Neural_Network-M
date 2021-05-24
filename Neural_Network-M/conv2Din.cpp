@@ -7,7 +7,7 @@ conv2Din::conv2Din(unsigned _kernelSize, unsigned _kernelNumber, unsigned _matri
 	this->kernelSize = _kernelSize;
 	this->kernelNumber = _kernelNumber;
 	this->matrixSize = _matrixSize;
-	this->errorSize = matrixSize - (kernelSize + 1);
+	this->errorSize = (matrixSize - kernelSize) + 1;
 	this->matrix_in = _matrix_in;
 	this->out = _out;
 	this->error = _error;
@@ -57,10 +57,15 @@ void conv2Din::back_propagation()
 void conv2Din::weights_update()
 {
 	for (unsigned i{ 0 }; i < kernelNumber; ++i) {
-		matrix_operations::multiply(batch[i], kernelSize, kernelSize, 0);
+		matrix_operations::multiply(batch[i], kernelSize, kernelSize, learnRate);
 		matrix_operations::add(kernels[i], batch[i], kernelSize, kernelSize);
 		matrix_operations::ResetMem(batch[i], kernelSize, kernelSize);
 	}
+}
+
+void conv2Din::changeLearnRate(float rate)
+{
+	learnRate = rate;
 }
 
 void conv2Din::initweights(Initializator::Initializators method)

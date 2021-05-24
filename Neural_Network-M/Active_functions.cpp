@@ -79,7 +79,7 @@ void Active_functions::tanh(float* in, float* out, unsigned size)
 	{
 		for (unsigned i{ 0 }; i < size; ++i)
 			out[i] = std::log(1 + std::exp(in[i]));
-	}
+	} 
 
 	void Active_functions::softmax(float* in, float* out, unsigned size)
 	{
@@ -90,11 +90,10 @@ void Active_functions::tanh(float* in, float* out, unsigned size)
 				max = in[i];
 		}
 		for (unsigned i{ 0 }; i < size; ++i) {
-			in[i] = std::exp(in[i] - max);
-			sum += in[i];
+			sum += std::exp(in[i]-max);
 		}
 		for (unsigned i{ 0 }; i < size; ++i) {
-			out[i] = in[i]/sum;
+			out[i] = std::exp(in[i]-max)/ sum;
 		}
 	}
 

@@ -1,7 +1,8 @@
 #include "fully_connected.h"
 #include "matrix_operations.h"
+#include <iostream>
 
-fully_connected::fully_connected(unsigned _neuronNumber, unsigned _weightsNumber, float* _out, float* _in, float* _deriative, float* _cost, bool _error3D, std::vector<float**>* _error_3D, Active_functions* _funkcje) //przypisuje potrzebne wskaŸniki tworzy macierze
+fully_connected::fully_connected(unsigned _neuronNumber, unsigned _weightsNumber, unsigned _layer_n, float* _out, float* _in, float* _deriative, std::vector<float*>* _cost, bool _error3D, std::vector<float**>* _error_3D, Active_functions* _funkcje) //przypisuje potrzebne wskaŸniki tworzy macierze
 {
 	this->neuronNumber = _neuronNumber;
 	this->weightsNumber = _weightsNumber;
@@ -13,6 +14,7 @@ fully_connected::fully_connected(unsigned _neuronNumber, unsigned _weightsNumber
 	this->in = _in;
 	this->deriative = _deriative;
 	this->cost = _cost;
+	this->layer_n = _layer_n;
 	this->error3D = _error3D;
 	this->error_3D = _error_3D;
 	this->error3DSize = _weightsNumber;
@@ -31,31 +33,41 @@ fully_connected::~fully_connected()
 
 void fully_connected::feed_forward()//zwraca wynik
 {
-	matrix_operations::dot_product(out, this->weights, in, neuronNumber, weightsNumber);
+	matrix_operations::dot_product(out, this->weights, in, neuronNumber, weightsNumber); // nie resetuje tablicy
+
 	funkcje->feed_forward();
 }
 
-void fully_connected::back_propagation()//
+void fully_connected::back_propagation()
 {
 	funkcje->deriative_out();
 	float* result_mul = new float[neuronNumber] {0};
 	float** weights_correction = matrix_operations::createMatrix(neuronNumber, weightsNumber);
-	matrix_operations::multiply(result_mul, cost, deriative, neuronNumber);
-	matrix_operations::dot_product(cost, weights, result_mul, neuronNumber, weightsNumber); // tworzenie b³êdu do nastêpnej warstwy
-	matrix_operations::dot_product(weights_correction, result_mul, in, neuronNumber, weightsNumber); // 
+	matrix_operations::multiply(result_mul, (*cost)[layer_n], deriative, neuronNumber);	// cost nie tak
+	matrix_operations::dot_productB((*cost)[layer_n-1], weights, result_mul, neuronNumber, weightsNumber); // tworzenie b³êdu do nastêpnej warstwy // co siê dzieje z liczbami sprawdziæ
+	matrix_operations::dot_product(weights_correction, result_mul, in, neuronNumber, weightsNumber); 
 	matrix_operations::add(batch_mem, weights_correction, neuronNumber, weightsNumber);
 	matrix_operations::clearMatrix(weights_correction, neuronNumber, weightsNumber);
 	delete[] result_mul;
 	if (error3D) {
-		matrix_operations::assignTo3D(cost, error_3D, error3DSize);
+		matrix_operations::assignTo3D((*cost)[layer_n-1], error_3D, sqrt(error3DSize/error_3D->size()));
+		matrix_operations::ResetMem((*cost)[layer_n-1], neuronNumber);
 	}
+	matrix_operations::ResetMem(out, neuronNumber);
+	matrix_operations::ResetMem((*cost)[layer_n], neuronNumber);
+
 }
 
 void fully_connected::weights_update()
 {
-	matrix_operations::multiply(batch_mem, neuronNumber, weightsNumber, 0);
+	matrix_operations::multiply(batch_mem, neuronNumber, weightsNumber, learnRate); // dodaæ learn rate
 	matrix_operations::subtract(weights, batch_mem, neuronNumber, weightsNumber);
 	matrix_operations::ResetMem(batch_mem, neuronNumber, weightsNumber);
+}
+
+void fully_connected::changeLearnRate(float rate)
+{
+	learnRate = rate;
 }
 
 void fully_connected::initweights(Initializator::Initializators method)

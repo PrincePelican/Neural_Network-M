@@ -27,9 +27,17 @@ void pooling::back_propagation()
 	float divider = pooling_size * pooling_size;
 	unsigned errorSize = matrixSize / pooling_size;
 	for (unsigned x{ 0 }; x < matrix_in->size(); ++x) {
-		matrix_operations::pool_back((*error_in)[x], (*error_in)[x], matrixSize / pooling_size, pooling_size);
+		matrix_operations::pool_back((*error_in)[x], (*error_out)[x], errorSize, pooling_size);
 		}
 	}
+
+void pooling::weights_update()
+{
+}
+
+void pooling::changeLearnRate(float rate)
+{
+}
 
 void pooling::initweights(Initializator::Initializators method)
 {
