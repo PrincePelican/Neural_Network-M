@@ -20,6 +20,8 @@ fully_connected::fully_connected(unsigned _neuronNumber, unsigned _weightsNumber
 	this->error3DSize = _weightsNumber;
 	this->funkcje = _funkcje;
 
+	bias = new float[neuronNumber] {0};
+	batch_bias = new float[neuronNumber] {0};
 	weights = matrix_operations::createMatrix(neuronNumber, weightsNumber);
 	batch_mem = matrix_operations::createMatrix(neuronNumber, weightsNumber);
 }
@@ -33,7 +35,8 @@ fully_connected::~fully_connected()
 
 void fully_connected::feed_forward()//zwraca wynik
 {
-	matrix_operations::dot_product(out, this->weights, in, neuronNumber, weightsNumber); // nie resetuje tablicy
+	matrix_operations::dot_product(out, this->weights, in, neuronNumber, weightsNumber); 
+	matrix_operations::add(out, bias, neuronNumber);
 
 	funkcje->feed_forward();
 }
@@ -43,8 +46,9 @@ void fully_connected::back_propagation()
 	funkcje->deriative_out();
 	float* result_mul = new float[neuronNumber] {0};
 	float** weights_correction = matrix_operations::createMatrix(neuronNumber, weightsNumber);
-	matrix_operations::multiply(result_mul, (*cost)[layer_n], deriative, neuronNumber);	// cost nie tak
-	matrix_operations::dot_productB((*cost)[layer_n-1], weights, result_mul, neuronNumber, weightsNumber); // tworzenie b³êdu do nastêpnej warstwy // co siê dzieje z liczbami sprawdziæ
+	matrix_operations::multiply(result_mul, (*cost)[layer_n], deriative, neuronNumber);	
+	matrix_operations::add(batch_bias, result_mul, neuronNumber);
+	matrix_operations::dot_productB((*cost)[layer_n-1], weights, result_mul, neuronNumber, weightsNumber);
 	matrix_operations::dot_product(weights_correction, result_mul, in, neuronNumber, weightsNumber); 
 	matrix_operations::add(batch_mem, weights_correction, neuronNumber, weightsNumber);
 	matrix_operations::clearMatrix(weights_correction, neuronNumber, weightsNumber);
@@ -53,16 +57,18 @@ void fully_connected::back_propagation()
 		matrix_operations::assignTo3D((*cost)[layer_n-1], error_3D, sqrt(error3DSize/error_3D->size()));
 		matrix_operations::ResetMem((*cost)[layer_n-1], neuronNumber);
 	}
-	matrix_operations::ResetMem(out, neuronNumber);
+	matrix_operations::ResetMem(out,neuronNumber);
 	matrix_operations::ResetMem((*cost)[layer_n], neuronNumber);
-
 }
 
 void fully_connected::weights_update()
 {
+	matrix_operations::multiply(batch_bias, neuronNumber, learnRate);
 	matrix_operations::multiply(batch_mem, neuronNumber, weightsNumber, learnRate); // dodaæ learn rate
+	matrix_operations::subtract(bias, batch_bias, neuronNumber);
 	matrix_operations::subtract(weights, batch_mem, neuronNumber, weightsNumber);
 	matrix_operations::ResetMem(batch_mem, neuronNumber, weightsNumber);
+	matrix_operations::ResetMem(batch_bias, neuronNumber);
 }
 
 void fully_connected::changeLearnRate(float rate)

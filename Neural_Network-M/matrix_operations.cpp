@@ -35,6 +35,13 @@ void matrix_operations::multiply(float**& out, unsigned sizeY, unsigned sizeX, f
 	}
 }
 
+void matrix_operations::multiply(float*& out, unsigned size, float multiplier)
+{
+	for (unsigned i{ 0 }; i < size; ++i) {
+		out[i] *= multiplier;
+	}
+}
+
 void matrix_operations::add(float**& out, float**& matrix_in, unsigned sizeY, unsigned sizeX)
 {
 	for (unsigned i{ 0 }; i < sizeY; ++i) {
@@ -42,6 +49,12 @@ void matrix_operations::add(float**& out, float**& matrix_in, unsigned sizeY, un
 			out[i][j] += matrix_in[i][j];
 		}
 	}
+}
+
+void matrix_operations::add(float*& out, float*& matrix_in, unsigned size)
+{
+	for (unsigned i{ 0 }; i < size; ++i)
+		out[i] += matrix_in[i];
 }
 
 void matrix_operations::subtract(float**& out, float**& matrix_in, unsigned sizeY, unsigned sizeX)
@@ -57,6 +70,13 @@ void matrix_operations::subtract(float* out, float* matrix_in, float* subtractor
 {
 	for (unsigned i{ 0 }; i < size; ++i) {
 		out[i] = matrix_in[i] - subtractor[i];
+	}
+}
+
+void matrix_operations::subtract(float* out, float* subtractor, unsigned size)
+{
+	for (unsigned i{ 0 }; i < size; ++i) {
+		out[i] -= subtractor[i];
 	}
 }
 

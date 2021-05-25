@@ -8,10 +8,13 @@ public:
 	static void dot_product(float**& out, float*& vector1, float*& vector2, unsigned vector1Size, unsigned vector2Size);
 	static void multiply(float*& out, float*& vector1, float*& vector2, unsigned size);
 	static void multiply(float**& out, unsigned sizeY, unsigned sizeX, float multiplier);
+	static void multiply(float*& out, unsigned size, float multiplier);
 	static void add(float**& out, float**& matrix_in, unsigned sizeY, unsigned sizeX);
+	static void add(float*& out, float*& matrix_in, unsigned size);
 	static void add(float**& out, std::vector<float**>& matrix_in, unsigned matrixSize);
 	static void subtract(float**& out, float**& matrix_in, unsigned sizeY, unsigned sizeX);
 	static void subtract(float* out, float* matrix_in, float* subtractor, unsigned size);
+	static void subtract(float* out, float* subtractor, unsigned size);
 	static void rotate180(float**& matrix, unsigned size);
 	static void transpose(float**& matrix, unsigned size);
 	static void reverseColumns(float**& matrix, unsigned size);

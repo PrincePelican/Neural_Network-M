@@ -32,18 +32,20 @@ private:
 	void addVectors(unsigned matrixSize, unsigned vectorSize);
 	void prepareTarget(unsigned size, unsigned answer);
 	void updateWeights();
+	void feed_forward();
+	void back_prop();
+	void changein(float** in);
+	void ClearBuffors();
+	void giveDataIn(std::vector<float**>* _dataVector, std::vector<unsigned>* _answers);
 public:
 	void add3Dconv(unsigned kernelNumber, unsigned kernelSize, bool flat = false);
 	void add2Dconv(unsigned kernelNumber, unsigned kernelSize, unsigned inSize);
 	void addPooling(unsigned poolingSize, bool flat = false);
 	void addFullyCon(Active_functions::Active_fun function, unsigned neuronNumber, unsigned inNumber = 0);
-	void changein(float** in);
 	void changeLearnRate(float rate);
 	void initializatiion(Initializator::Initializators method);
-	void feed_forward();
-	void back_prop();
-	void giveDataIn(std::vector<float**>* _dataVector, std::vector<unsigned>* _answers);
-	void Learn();
+	void Learn(std::vector<float**>* _dataVector, std::vector<unsigned>* _answers);
+	void Predict(std::vector<float**>* _dataVector, std::vector<unsigned>* _answers);
 
 	
 };

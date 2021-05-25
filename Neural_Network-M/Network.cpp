@@ -1,5 +1,6 @@
 #include "Network.h"
 #include <iostream>
+#include <chrono>
 
 void Network::add3Dconv(unsigned kernelNumber, unsigned kernelSize, bool flat) //dodaje konwolucje wejœcia 3D
 {
@@ -70,6 +71,16 @@ void Network::changein(float** in)
 	inData = in;
 }
 
+void Network::ClearBuffors()
+{
+	unsigned x = Layers.size() - result_fullyCon.size();
+	for (unsigned i = 0; i < result_fullyCon.size(); ++i) {
+		matrix_operations::ResetMem(result_fullyCon[i], Sizes[x]);
+		matrix_operations::ResetMem(result_funfullyCon[i+1], Sizes[x]);
+		++x;
+	}
+}
+
 void Network::changeLearnRate(float rate)
 {
 	for (unsigned i{ 0 }; i < Layers.size(); ++i)
@@ -109,24 +120,24 @@ void Network::giveDataIn(std::vector<float**>* _dataVector, std::vector<unsigned
 	this->answers = _answers;
 }
 
-void Network::Learn()
+void Network::Learn(std::vector<float**>* _dataVector, std::vector<unsigned>* _answers)
 {
+	giveDataIn(_dataVector, _answers);
+	std::ios::sync_with_stdio(false);
 	target = new float[Sizes.back()];
-	float counter = 1;
+	float counter = 0;
 	float good = 0;
+	auto start = std::chrono::high_resolution_clock::now();
+	
 	for (unsigned i{ 0 }; i < data_Vector->size(); ++i) {
 		samplecount++;
-		std::cout << i << std::endl << std::endl << std::endl;
 		changein((*data_Vector)[i]);
 		feed_forward();
-		matrix_operations::showVector(result_funfullyCon.back(), Sizes.back());
-		std::cout << std::endl;
 		prepareTarget(Sizes.back(), (*answers)[i]);
 		matrix_operations::subtract(dercost_fullyCon.back(), result_funfullyCon.back(), target, Sizes.back());
 		unsigned Networ_pred = matrix_operations::chooseMax(result_funfullyCon.back(), Sizes.back());
+		//std::cout << "Answer:" << (*answers)[i] << " " << "Network_prediction:" << Networ_pred << std::endl;
 		if ((*answers)[i] == Networ_pred) ++good;
-		std::cout << "Answer:" << (*answers)[i] << " " << "Network_prediction:" << Networ_pred << std::endl;
-		std::cout << "[" << counter << "/" << (*data_Vector).size() << "] Acc:" << (good / counter * 100.0f) << "%" << std::endl;
 		back_prop();
 		if (samplecount == batchsize) {
 			updateWeights();
@@ -134,8 +145,37 @@ void Network::Learn()
 		}
 		++counter;
 	}
+	std::cout << std::endl;
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed = end - start;
+	std::cout << "[" << counter << "/" << (*data_Vector).size() << "] Acc:" << (good / counter * 100.0f) << "%" << std::endl;
+	std::cout << "Epoch Time:" << elapsed.count() << "sec" << std::endl;
 	delete[] target;
 }
+
+void Network::Predict(std::vector<float**>* _dataVector, std::vector<unsigned>* _answers)
+{
+	giveDataIn(_dataVector, _answers);
+	target = new float[Sizes.back()];
+	float counter = 0;
+	float good = 0;
+	auto start = std::chrono::high_resolution_clock::now();
+	for (unsigned i{ 0 }; i < data_Vector->size(); ++i) {
+		ClearBuffors();
+		changein((*data_Vector)[i]);
+		feed_forward();
+		unsigned Networ_pred = matrix_operations::chooseMax(result_funfullyCon.back(), Sizes.back());
+		if ((*answers)[i] == Networ_pred) ++good;
+		++counter;
+	}
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed = end - start;
+	std::cout << std::endl;
+	std::cout << "[" << counter << "/" << (*data_Vector).size() << "]" << std:: endl;
+	std::cout << "Test_Acc:" << good / counter * 100.0f << "% Time:" << elapsed.count() << "sec" << std::endl;
+	delete[] target;
+}
+
 
 void Network::addVectors(unsigned matrixSize, unsigned vectorSize)
 {
@@ -155,7 +195,8 @@ void Network::prepareTarget(unsigned size, unsigned answer)
 		target[i] = 0.0f;
 		if (i == answer) target[i] = 1.0f;
 	}
-}
+}	
+
 
 
 

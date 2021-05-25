@@ -14,7 +14,8 @@ private:
 	float* in;
 	float* deriative;
 	std::vector<float*>* cost;
-	float bias;
+	float* bias;
+	float* batch_bias;
 	bool error3D;
 	unsigned layer_n;
 	unsigned error3DSize;

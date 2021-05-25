@@ -67,7 +67,7 @@ void Active_functions::tanh(float* in, float* out, unsigned size)
 	void Active_functions::relu(float* in, float* out, unsigned size)
 	{
 		for (unsigned i{ 0 }; i < size; ++i)
-			out[i] = in[i] < 0 ? 0.0001, 1 * in[i] : in[i];
+			out[i] = in[i] < 0 ? 0.0001 * in[i] : in[i];
 	}
 	void Active_functions::arctan(float* in, float* out, unsigned size)
 	{

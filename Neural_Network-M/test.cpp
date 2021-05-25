@@ -118,7 +118,8 @@ int main() {
 	A.addFullyCon(Active_functions::Active_fun::SOFTMAX, 10);
 	A.initializatiion(Initializator::He);
     A.changeLearnRate(0.001);
-    A.giveDataIn(&images, &labels);
-    A.Learn();
+    A.Learn(&images, &labels);
+    A.Predict(&test, &labels_test);
+    A.Learn(&images, &labels);
 	return 0;
 }
