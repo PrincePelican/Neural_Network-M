@@ -16,6 +16,7 @@ private:
 	std::vector<unsigned> Sizes;//rozmiary poszczególnych warstw
 	std::vector<float**>* data_Vector;
 	std::vector<unsigned>* answers;
+	unsigned correct;
 	float* target;
 	unsigned samplecount = 0;
 	unsigned batchsize = 16;
@@ -29,7 +30,8 @@ private:
 	//conv 3D
 	std::vector<std::vector<float**>*> result_3D;
 	std::vector<std::vector<float**>*> error_3D;
-	void addVectors(unsigned matrixSize, unsigned vectorSize);
+	void addVectors(unsigned matrixSize, unsigned vectorSize, std::vector<std::vector<float**>*>& vector);
+	void addVectorsError(unsigned matrixSize, unsigned vectorSize, std::vector<float**>* vector);
 	void prepareTarget(unsigned size, unsigned answer);
 	void updateWeights();
 	void feed_forward();

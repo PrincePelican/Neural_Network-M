@@ -1,11 +1,13 @@
 #include "Active_functions.h"
+#include "matrix_operations.h"
 
-Active_functions::Active_functions(unsigned inSize, float* resultIN, float* resultOUT, float* deriativeOUT, Active_fun _function)
+Active_functions::Active_functions(unsigned inSize, float* resultIN, float* resultOUT, float* deriativeOUT, Active_fun _function, unsigned* _correct)
 {
 	this->result[0] = resultIN;
 	this->result[1] = resultOUT;
 	this->deriative = deriativeOUT;
 	this->size = inSize;
+	this->correct = _correct;
 
 	set_active_fun(_function);
 }
@@ -86,8 +88,9 @@ void Active_functions::tanh(float* in, float* out, unsigned size)
 		float sum = 0;
 		float max = in[0];
 		for (unsigned i{ 0 }; i < size; ++i) {
-			if (in[i] > max)
+			if (in[i] > max) {
 				max = in[i];
+			}
 		}
 		for (unsigned i{ 0 }; i < size; ++i) {
 			sum += std::exp(in[i]-max);
@@ -117,8 +120,11 @@ void Active_functions::tanh(float* in, float* out, unsigned size)
 
 	void Active_functions::softmax_der(float* in, float* out, unsigned size)
 	{
-		for (unsigned i{ 0 }; i < size; ++i)
-			out[i] = in[i] * (1 - in[i]);
+		for (unsigned i{ 0 }; i < size; ++i) {
+			//out[i] = -in[*correct] * in[i];
+			//if (*correct == i)
+				out[i] = in[i] * (1 - in[i]);
+		}
 	}
 
 	void Active_functions::relu_der(float* in, float* out, unsigned size)

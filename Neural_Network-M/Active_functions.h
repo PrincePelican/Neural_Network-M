@@ -8,6 +8,7 @@ private:
 	unsigned size;
 	float* result[2];
 	float* deriative;
+	unsigned* correct;
 public:
 	enum class Active_fun { // klasa pomocnicza sluzaca "bezpiecznemu" wybieraniu funkcji aktywacji
 		BINARY_STEP,
@@ -18,7 +19,7 @@ public:
 		SOFTPLUS,
 		SOFTMAX
 	};
-	Active_functions(unsigned inSize, float* resultIN, float* resultOUT, float* deriativeOUT, Active_fun _function);
+	Active_functions(unsigned inSize, float* resultIN, float* resultOUT, float* deriativeOUT, Active_fun _function, unsigned *_correct);
 	void feed_forward();
 	void deriative_out();
 private:

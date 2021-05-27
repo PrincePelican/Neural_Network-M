@@ -95,6 +95,7 @@ void read_mnist_labels(string full_path, vector<unsigned int>& labels) {
     }
 }
 
+
 int main() {
     vector<float**> images;
     vector<float**> test;
@@ -105,8 +106,6 @@ int main() {
     read_mnist_labels("train-labels.idx1-ubyte", labels);
     read_mnist_images("t10k-images.idx3-ubyte", test);
     read_mnist_labels("t10k-labels.idx1-ubyte", labels_test);
-
-
 
 
 	Network A;
@@ -121,5 +120,8 @@ int main() {
     A.Learn(&images, &labels);
     A.Predict(&test, &labels_test);
     A.Learn(&images, &labels);
+    A.Predict(&test, &labels_test);
+    A.Learn(&images, &labels);
+    A.Predict(&test, &labels_test);
 	return 0;
 }

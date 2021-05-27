@@ -47,6 +47,7 @@ void fully_connected::back_propagation()
 	float* result_mul = new float[neuronNumber] {0};
 	float** weights_correction = matrix_operations::createMatrix(neuronNumber, weightsNumber);
 	matrix_operations::multiply(result_mul, (*cost)[layer_n], deriative, neuronNumber);	
+	//matrix_operations::showVector(result_mul, neuronNumber);
 	matrix_operations::add(batch_bias, result_mul, neuronNumber);
 	matrix_operations::dot_productB((*cost)[layer_n-1], weights, result_mul, neuronNumber, weightsNumber);
 	matrix_operations::dot_product(weights_correction, result_mul, in, neuronNumber, weightsNumber); 
