@@ -1,8 +1,7 @@
 #include "Network.h"
-#include <iostream>
-#include <chrono>
 
-void Network::add3Dconv(unsigned kernelNumber, unsigned kernelSize, bool flat) //dodaje konwolucje wejœcia 3D
+
+void Network::add3Dconv(unsigned kernelNumber, unsigned kernelSize, Active_functions::Active_fun function, bool flat) //dodaje konwolucje wejœcia 3D
 {
 	unsigned matrixSize = Sizes.back(); //pobiera rozmiar wejœcia z poprzedniej warstwy
 	unsigned outSize = matrixSize - (kernelSize - 1);	//oblicza rozmiar wyjœcia
@@ -14,15 +13,18 @@ void Network::add3Dconv(unsigned kernelNumber, unsigned kernelSize, bool flat) /
 		SizetoPush = kernelNumber * outSize * outSize;
 	}
 	addVectors(outSize, kernelNumber);
-	Layers.push_back(new conv3Din(kernelSize, kernelNumber, matrixSize, result_3D[result_3D.size()-2], result_3D.back(), error_3D.back(), error_3D[error_3D.size() - 2], flat, flatten));
+	Active_functions* fun = new Active_functions(outSize, result_3D.back(), function);
+	Layers.push_back(new conv3Din(kernelSize, kernelNumber, matrixSize, result_3D[result_3D.size()-2], result_3D.back(), error_3D.back(), error_3D[error_3D.size() - 2], flat, flatten, fun));
 	Sizes.push_back(SizetoPush);
+	//dodajemy wszystkie macierze b³êdu pooling i wczeœniejszych warstw
 }
 
-void Network::add2Dconv(unsigned kernelNumber, unsigned kernelSize, unsigned inSize) //dodaje konwolucje wejœcia 2D
+void Network::add2Dconv(unsigned kernelNumber, unsigned kernelSize, unsigned inSize, Active_functions::Active_fun function) //dodaje konwolucje wejœcia 2D
 {
 	unsigned outSize = inSize - (kernelSize - 1); // oblicza rozmiar wyjœæia konwolucji
 	addVectors(outSize, kernelNumber);
-	Layers.push_back(new conv2Din(kernelSize, kernelNumber, inSize, &inData, result_3D[0], error_3D[0]));
+	Active_functions* fun = new Active_functions(outSize, result_3D[0], function);
+	Layers.push_back(new conv2Din(kernelSize, kernelNumber, inSize, &inData, result_3D[0], error_3D[0], fun));
 	Sizes.push_back(outSize);
 }
 
@@ -40,6 +42,7 @@ void Network::addPooling(unsigned poolingSize, bool flat)
 	addVectors(outSize, result_3D.back()->size());
 	Layers.push_back(new pooling(poolingSize, inSize, result_3D[result_3D.size() - 2], error_3D.back(), result_3D.back(), error_3D[error_3D.size() - 2], flat, flatten));
 	Sizes.push_back(SizetoPush);
+	//nie dodawania macierzy b³êdu brak informacji o iloœci filtrów
 }
 
 void Network::addFullyCon(Active_functions::Active_fun function, unsigned neuronNumber, unsigned inNumber)
@@ -48,21 +51,21 @@ void Network::addFullyCon(Active_functions::Active_fun function, unsigned neuron
 	unsigned SizeWeights = inNumber;
 	if (inNumber == 0) {
 		SizeWeights = Sizes.back();
-		if (!error_3D.empty() && dercost_fullyCon.empty()) {
+		if (!error_3D.empty() && error.empty()) {
 			error3D = true;
 		}
 	}
-	if (dercost_fullyCon.empty()) {
-		dercost_fullyCon.push_back(new float[SizeWeights] {0});
+	if (error.empty()) {
+		error.push_back(new float[SizeWeights] {0});
 	}
 	result_fullyCon.push_back(new float[neuronNumber] {0});//tworzy potrzebne macierze do przekazania wskaŸników
 	result_funfullyCon.push_back(new float[neuronNumber] {0});
 	result_deriative.push_back(new float[neuronNumber] {0});
-	dercost_fullyCon.push_back(new float[neuronNumber] {0});
-	Active_functions* functions = new Active_functions(neuronNumber, result_fullyCon.back(), result_funfullyCon.back(), result_deriative.back(), function);
+	error.push_back(new float[neuronNumber] {0});
+	Active_functions* functions = new Active_functions(neuronNumber, result_fullyCon.back(), result_funfullyCon.back(), result_deriative.back(), &answer,function);
 
 
-	Layers.push_back(new fully_connected(neuronNumber, SizeWeights, dercost_fullyCon.size()-1, result_fullyCon.back(), result_funfullyCon[result_funfullyCon.size() - 2], result_deriative.back(), &dercost_fullyCon, error3D, error_3D.back(), functions));
+	Layers.push_back(new fully_connected(neuronNumber, SizeWeights, error.size()-1, result_fullyCon.back(), result_funfullyCon[result_funfullyCon.size() - 2], result_deriative.back(), &error, error3D, error_3D.back(), functions));
 	Sizes.push_back(neuronNumber);
 }
 
@@ -87,6 +90,11 @@ void Network::changeLearnRate(float rate)
 	{
 		Layers[i]->changeLearnRate(rate);
 	}
+}
+
+void Network::changeBatchSize(unsigned size)
+{
+	this->batchsize = size;
 }
 
 void Network::initializatiion(Initializator::Initializators method)
@@ -120,7 +128,7 @@ void Network::giveDataIn(std::vector<float**>* _dataVector, std::vector<unsigned
 	this->answers = _answers;
 }
 
-void Network::Learn(std::vector<float**>* _dataVector, std::vector<unsigned>* _answers)
+void Network::Learn(std::vector<float**>* _dataVector, std::vector<unsigned>* _answers, std::ofstream &file)
 {
 	giveDataIn(_dataVector, _answers);
 	std::ios::sync_with_stdio(false);
@@ -134,9 +142,9 @@ void Network::Learn(std::vector<float**>* _dataVector, std::vector<unsigned>* _a
 		changein((*data_Vector)[i]);
 		feed_forward();
 		prepareTarget(Sizes.back(), (*answers)[i]);
-		matrix_operations::subtract(dercost_fullyCon.back(), result_funfullyCon.back(), target, Sizes.back());
+		answer = (*answers)[i];
+		matrix_operations::cost(error.back(), result_funfullyCon.back(), target, Sizes.back());
 		unsigned Networ_pred = matrix_operations::chooseMax(result_funfullyCon.back(), Sizes.back());
-		//std::cout << "Answer:" << (*answers)[i] << " " << "Network_prediction:" << Networ_pred << std::endl;
 		if ((*answers)[i] == Networ_pred) ++good;
 		back_prop();
 		if (samplecount == batchsize) {
@@ -144,11 +152,13 @@ void Network::Learn(std::vector<float**>* _dataVector, std::vector<unsigned>* _a
 			samplecount = 0;
 		}
 		++counter;
+		float acc = good / counter;
+		file << i << "," << acc << "\n";
 	}
 	std::cout << std::endl;
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = end - start;
-	std::cout << "[" << counter << "/" << (*data_Vector).size() << "] Acc:" << (good / counter * 100.0f) << "%" << std::endl;
+	std::cout << "[" << counter << "/" << (*data_Vector).size() << "] Acc:" << (good / counter * 100.000f) << "%" << std::endl;
 	std::cout << "Epoch Time:" << elapsed.count() << "sec" << std::endl;
 	delete[] target;
 }
@@ -172,7 +182,7 @@ void Network::Predict(std::vector<float**>* _dataVector, std::vector<unsigned>* 
 	std::chrono::duration<double> elapsed = end - start;
 	std::cout << std::endl;
 	std::cout << "[" << counter << "/" << (*data_Vector).size() << "]" << std:: endl;
-	std::cout << "Test_Acc:" << good / counter * 100.0f << "% Time:" << elapsed.count() << "sec" << std::endl;
+	std::cout << "Test_Acc:" << good / counter * 100.000f << "% Time:" << elapsed.count() << "sec" << std::endl;
 	delete[] target;
 }
 

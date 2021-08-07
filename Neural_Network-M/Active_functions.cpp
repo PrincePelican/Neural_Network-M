@@ -1,10 +1,20 @@
 #include "Active_functions.h"
+#include <iostream>
 
-Active_functions::Active_functions(unsigned inSize, float* resultIN, float* resultOUT, float* deriativeOUT, Active_fun _function)
+Active_functions::Active_functions(unsigned inSize, float* resultIN, float* resultOUT, float* deriativeOUT, unsigned* answer, Active_fun _function)
 {
 	this->result[0] = resultIN;
 	this->result[1] = resultOUT;
 	this->deriative = deriativeOUT;
+	this->size = inSize;
+	this->answer = answer;
+
+	set_active_fun(_function);
+}
+
+Active_functions::Active_functions(unsigned inSize, std::vector<float**>* _vector, Active_fun _function)
+{
+	this->vector = _vector;
 	this->size = inSize;
 
 	set_active_fun(_function);
@@ -13,6 +23,14 @@ Active_functions::Active_functions(unsigned inSize, float* resultIN, float* resu
 void Active_functions::feed_forward()
 {
 	functions[0](result[0], result[1], size);
+}
+
+void Active_functions::feed_forwardM()
+{
+	for (float** in : *vector) {
+		for (unsigned i{ 0 }; i < size; ++i)
+			functions[0](in[i], in[i], size);
+	}
 }
 
 void Active_functions::deriative_out()
@@ -67,7 +85,7 @@ void Active_functions::tanh(float* in, float* out, unsigned size)
 	void Active_functions::relu(float* in, float* out, unsigned size)
 	{
 		for (unsigned i{ 0 }; i < size; ++i)
-			out[i] = in[i] < 0 ? 0.0001 * in[i] : in[i];
+			out[i] = in[i] < 0 ? 0.01 * in[i] : in[i];
 	}
 	void Active_functions::arctan(float* in, float* out, unsigned size)
 	{
@@ -79,6 +97,7 @@ void Active_functions::tanh(float* in, float* out, unsigned size)
 	{
 		for (unsigned i{ 0 }; i < size; ++i)
 			out[i] = std::log(1 + std::exp(in[i]));
+			
 	} 
 
 	void Active_functions::softmax(float* in, float* out, unsigned size)
@@ -115,16 +134,23 @@ void Active_functions::tanh(float* in, float* out, unsigned size)
 			out[i] = in[i] * (1 - in[i]);
 	}
 
-	void Active_functions::softmax_der(float* in, float* out, unsigned size)
+	void Active_functions::softmax_der(float* in, float* out, unsigned size) 
 	{
-		for (unsigned i{ 0 }; i < size; ++i)
-			out[i] = in[i] * (1 - in[i]);
+		for (unsigned i{ 0 }; i < size; ++i) {
+			if (i == *answer) {
+				out[i] = in[i] * (1 - in[i]);
+			}
+			else{
+				out[i] = in[*answer] * -in[i];
+			}
+			
+		}
 	}
 
 	void Active_functions::relu_der(float* in, float* out, unsigned size)
 	{
 		for (unsigned i{ 0 }; i < size; ++i)
-			out[i] = in[i] > 0 ? 1 : 0.0001 * in[i];
+			out[i] = in[i] > 0 ? 1 : 0.01 * in[i];
 	}
 
 	void Active_functions::tanh_der(float* in, float* out, unsigned size)

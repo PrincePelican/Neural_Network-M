@@ -13,7 +13,7 @@ public:
 	static void add(float*& out, float*& matrix_in, unsigned size);
 	static void add(float**& out, std::vector<float**>& matrix_in, unsigned matrixSize);
 	static void subtract(float**& out, float**& matrix_in, unsigned sizeY, unsigned sizeX);
-	static void subtract(float* out, float* matrix_in, float* subtractor, unsigned size);
+	static void cost(float* out, float* prediction, float* target, unsigned size);
 	static void subtract(float* out, float* subtractor, unsigned size);
 	static void rotate180(float**& matrix, unsigned size);
 	static void transpose(float**& matrix, unsigned size);

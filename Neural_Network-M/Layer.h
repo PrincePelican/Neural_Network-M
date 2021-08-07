@@ -2,7 +2,10 @@
 
 #include <random>
 #include <time.h>
+#include <vector>
+#include "Active_functions.h"
 #include "Initializator.h"
+#include "matrix_operations.h"
 
 class Layer
 {

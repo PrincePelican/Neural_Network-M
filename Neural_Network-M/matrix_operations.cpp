@@ -66,10 +66,10 @@ void matrix_operations::subtract(float**& out, float**& matrix_in, unsigned size
 	}
 }
 
-void matrix_operations::subtract(float* out, float* matrix_in, float* subtractor, unsigned size)
+void matrix_operations::cost(float* out, float* prediction, float* target, unsigned size)
 {
 	for (unsigned i{ 0 }; i < size; ++i) {
-		out[i] = matrix_in[i] - subtractor[i];
+		out[i] = (prediction[i] - target[i]) * 2;
 	}
 }
 

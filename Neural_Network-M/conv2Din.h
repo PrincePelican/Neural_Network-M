@@ -15,8 +15,9 @@ private:
 	std::vector<float**>* error;
 	std::vector<float**> kernels;
 	std::vector<float**> batch;
+	Active_functions* function;
 public:
-	conv2Din(unsigned _kernelSize, unsigned _kernelNumber, unsigned _matrixSize, float*** _matrix_in, std::vector<float**>* _out, std::vector<float**>* _error);
+	conv2Din(unsigned _kernelSize, unsigned _kernelNumber, unsigned _matrixSize, float*** _matrix_in, std::vector<float**>* _out, std::vector<float**>* _error, Active_functions* _function);
 	~conv2Din();
 	void feed_forward();
 	void back_propagation();

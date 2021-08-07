@@ -1,8 +1,8 @@
 #include "conv2Din.h"
-#include "matrix_operations.h"
 
 
-conv2Din::conv2Din(unsigned _kernelSize, unsigned _kernelNumber, unsigned _matrixSize, float*** _matrix_in, std::vector<float**>* _out, std::vector<float**>* _error)
+
+conv2Din::conv2Din(unsigned _kernelSize, unsigned _kernelNumber, unsigned _matrixSize, float*** _matrix_in, std::vector<float**>* _out, std::vector<float**>* _error, Active_functions* _function)
 {
 	this->kernelSize = _kernelSize;
 	this->kernelNumber = _kernelNumber;
@@ -11,6 +11,7 @@ conv2Din::conv2Din(unsigned _kernelSize, unsigned _kernelNumber, unsigned _matri
 	this->matrix_in = _matrix_in;
 	this->out = _out;
 	this->error = _error;
+	this->function = _function;
 
 	kernels.resize(kernelNumber);
 	batch.resize(kernelNumber);
@@ -34,22 +35,25 @@ void conv2Din::feed_forward()
 	for (unsigned i{ 0 }; i < kernelNumber; ++i) {
 		matrix_operations::Conv(*matrix_in, kernels[i], (*out)[i], matrixSize, kernelSize);
 	}
+
+	function->feed_forwardM();
+
 }
 
 void conv2Din::back_propagation()
 {
 	float** conv_product = matrix_operations::createMatrix(kernelSize, kernelSize);
-	float** error_sum = matrix_operations::createMatrix(errorSize, errorSize);
+	//float** error_sum = matrix_operations::createMatrix(errorSize, errorSize);
 
-	matrix_operations::add(error_sum, (*error), errorSize);
+	//matrix_operations::add(error_sum, (*error), errorSize);
 	
-	for (unsigned i{ 0 }; i < kernelNumber; ++i) {			//przyjrzeæ siê ten sam in za ka¿dym razem
-		matrix_operations::Conv(*matrix_in, error_sum, conv_product, matrixSize, errorSize);
+	for (unsigned i{ 0 }; i < kernelNumber; ++i) {			
+		matrix_operations::Conv(*matrix_in, (*error)[i], conv_product, matrixSize, errorSize);
 		matrix_operations::subtract(batch[i], conv_product, kernelSize, kernelSize);
 	}
 
 	matrix_operations::clearMatrix(conv_product, kernelSize, kernelSize);
-	matrix_operations::clearMatrix(error_sum, errorSize, errorSize);
+	//matrix_operations::clearMatrix(error_sum, errorSize, errorSize);
 
 
 }

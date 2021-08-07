@@ -5,9 +5,11 @@ class Active_functions
 {
 private:
 	std::function<void (float*, float*, unsigned size)> functions[2];
+	unsigned* answer;
 	unsigned size;
 	float* result[2];
 	float* deriative;
+	std::vector<float**>* vector;
 public:
 	enum class Active_fun { // klasa pomocnicza sluzaca "bezpiecznemu" wybieraniu funkcji aktywacji
 		BINARY_STEP,
@@ -18,8 +20,10 @@ public:
 		SOFTPLUS,
 		SOFTMAX
 	};
-	Active_functions(unsigned inSize, float* resultIN, float* resultOUT, float* deriativeOUT, Active_fun _function);
+	Active_functions(unsigned inSize, float* resultIN, float* resultOUT, float* deriativeOUT, unsigned* answer, Active_fun _function);
+	Active_functions(unsigned inSize, std::vector<float**>* _vector, Active_fun _function);
 	void feed_forward();
+	void feed_forwardM();
 	void deriative_out();
 private:
 	void set_active_fun(Active_fun fun);

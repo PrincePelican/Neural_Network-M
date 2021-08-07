@@ -96,11 +96,12 @@ void read_mnist_labels(string full_path, vector<unsigned int>& labels) {
 }
 
 int main() {
+
+
     vector<float**> images;
     vector<float**> test;
     vector<unsigned int> labels;
     vector<unsigned int> labels_test;
-
     read_mnist_images("train-images.idx3-ubyte", images);
     read_mnist_labels("train-labels.idx1-ubyte", labels);
     read_mnist_images("t10k-images.idx3-ubyte", test);
@@ -110,16 +111,21 @@ int main() {
 
 
 	Network A;
-	A.add2Dconv(6, 3, 28);
-	A.addPooling(2);
-	A.add3Dconv(6, 3); // problem z wymiarami podczas tworzenia tablic error in out Ÿle przypisowane s¹ iloœæ filtrów 
+	A.add2Dconv(10, 3, 28, Active_functions::Active_fun::RELU);
 	A.addPooling(2, true);
 	A.addFullyCon(Active_functions::Active_fun::RELU, 150);
-	A.addFullyCon(Active_functions::Active_fun::SOFTMAX, 10);
+	A.addFullyCon(Active_functions::Active_fun::RELU, 10);
 	A.initializatiion(Initializator::He);
     A.changeLearnRate(0.001);
-    A.Learn(&images, &labels);
-    A.Predict(&test, &labels_test);
-    A.Learn(&images, &labels);
+    A.changeBatchSize(16);
+    std::ofstream file("wyniki.csv");
+    file << "sample" << "," << "acc" << "\n";
+    for (unsigned i = 0; i < 10;++i) {
+        cout << "Epoka:" << i + 1 << endl;
+        A.Learn(&images, &labels, file);
+        A.Predict(&test, &labels_test);
+    }
+    file.close();
+
 	return 0;
 }

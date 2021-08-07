@@ -1,6 +1,4 @@
 #include "fully_connected.h"
-#include "matrix_operations.h"
-#include <iostream>
 
 fully_connected::fully_connected(unsigned _neuronNumber, unsigned _weightsNumber, unsigned _layer_n, float* _out, float* _in, float* _deriative, std::vector<float*>* _cost, bool _error3D, std::vector<float**>* _error_3D, Active_functions* _funkcje) //przypisuje potrzebne wskaŸniki tworzy macierze
 {
@@ -33,7 +31,7 @@ fully_connected::~fully_connected()
 	delete weights;
 }
 
-void fully_connected::feed_forward()//zwraca wynik
+void fully_connected::feed_forward()
 {
 	matrix_operations::dot_product(out, this->weights, in, neuronNumber, weightsNumber); 
 	matrix_operations::add(out, bias, neuronNumber);
@@ -41,7 +39,7 @@ void fully_connected::feed_forward()//zwraca wynik
 	funkcje->feed_forward();
 }
 
-void fully_connected::back_propagation()
+void fully_connected::back_propagation() 
 {
 	funkcje->deriative_out();
 	float* result_mul = new float[neuronNumber] {0};
@@ -49,7 +47,7 @@ void fully_connected::back_propagation()
 	matrix_operations::multiply(result_mul, (*cost)[layer_n], deriative, neuronNumber);	
 	matrix_operations::add(batch_bias, result_mul, neuronNumber);
 	matrix_operations::dot_productB((*cost)[layer_n-1], weights, result_mul, neuronNumber, weightsNumber);
-	matrix_operations::dot_product(weights_correction, result_mul, in, neuronNumber, weightsNumber); 
+	matrix_operations::dot_product(weights_correction, result_mul, in, neuronNumber, weightsNumber);
 	matrix_operations::add(batch_mem, weights_correction, neuronNumber, weightsNumber);
 	matrix_operations::clearMatrix(weights_correction, neuronNumber, weightsNumber);
 	delete[] result_mul;
@@ -64,7 +62,7 @@ void fully_connected::back_propagation()
 void fully_connected::weights_update()
 {
 	matrix_operations::multiply(batch_bias, neuronNumber, learnRate);
-	matrix_operations::multiply(batch_mem, neuronNumber, weightsNumber, learnRate); // dodaæ learn rate
+	matrix_operations::multiply(batch_mem, neuronNumber, weightsNumber, learnRate);
 	matrix_operations::subtract(bias, batch_bias, neuronNumber);
 	matrix_operations::subtract(weights, batch_mem, neuronNumber, weightsNumber);
 	matrix_operations::ResetMem(batch_mem, neuronNumber, weightsNumber);
